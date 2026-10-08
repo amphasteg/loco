@@ -1,10 +1,17 @@
 #include "loco.h"
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 #ifdef _WIN32
 #include <WS2tcpip.h>
 #include <Winsock2.h>
 #else
+#include <errno.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif
 
 int verify_hostname(const char *hostname,
@@ -48,25 +55,65 @@ char *get_hostname(void) {
   return hostname;
 }
 
-void set_hints(struct addrinfo *hints, enum address_type type) {
-  if (type == IPV4)
+void set_hints(struct addrinfo *hints,
+               enum address_type type) {
+  switch (type) {
+  case IPV4:
     hints->ai_family = AF_INET;
-  else if (type == IPV6)
+    break;
+  case IPV6:
     hints->ai_family = AF_INET6;
-  else
-   hints->ai_family = AF_UNSPEC;
+    break;
+  default:
+    hints->ai_family = AF_UNSPEC;
+    break;
+  }
 
   hints->ai_socktype = SOCK_STREAM;
   hints->ai_flags = AI_PASSIVE;
 }
 
-void get_address_info(struct addrinfo *info, struct addrinfo *hints, const char *port) {
+void get_address_info(struct addrinfo *info,
+                      struct addrinfo *hints,
+                      const char *port) {
   int return_value;
 
-  if ((return_value = getaddrinfo(NULL, port, hints, &info)) != 0)
-  {
-    fprintf(stderr, "Error getting address information: %s\n", gai_strerror(return_value));
+  if ((return_value = getaddrinfo(
+           NULL, port, hints, &info)) != 0) {
+    fprintf(
+        stderr,
+        "Error getting address information: %s\n",
+        gai_strerror(return_value));
     exit(1);
+  }
+}
+
+void bind_sockets(struct server *server,
+                  struct addrinfo *address_info,
+                  enum address_type ip_type) {
+  // Flags to determine if a socket of either IPv4
+  // or IPv6 needs to be bound and collected
+  struct binding_flags {
+    unsigned ipv4_uneeded : 1;
+    unsigned ipv6_uneeded : 1;
+  };
+
+  struct binding_flags flags = {0, 0};
+
+  switch (ip_type) {
+  case IPV4:
+    flags.ipv6_uneeded = 1;
+    break;
+  case IPV6:
+    flags.ipv4_uneeded = 1;
+    break;
+  default:
+    break;
+  }
+
+  struct listening_socket listening_sock;
+  for (struct addrinfo *p = address_info;
+       p != NULL; p = p->ai_next) {
   }
 }
 
@@ -90,8 +137,8 @@ create_server(struct server_options *options) {
   server.hostname_len = strlen(server.hostname);
 
   set_hints(&hints, options->ip_type);
-  get_address_info(&address_info, &hints, options->port);
-  
+  get_address_info(&address_info, &hints,
+                   options->port);
 
   return server;
 }

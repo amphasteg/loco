@@ -1,3 +1,7 @@
+#ifndef _WIN32
+#include <stddef.h>
+#endif
+
 /**
  * IP version
  */
@@ -14,10 +18,10 @@ struct server_options {
 struct listening_socket {
   /** The IP version used for this specific socket */
   enum address_type listening_type;
+  /** File descripter for listening socket */
+  int socket;
   /** Length of IP address for given listening socket */
   size_t address_len;
-  /** File descripter for listening socket */
-  unsigned socket;
   /** IP address for bound socket */
   char *address; 
 };
