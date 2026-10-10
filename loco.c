@@ -14,6 +14,14 @@
 #include <unistd.h>
 #endif
 
+// Flags to determine if a socket of either IPv4
+// or IPv6 needs to be bound and collected
+struct binding_flags {
+  unsigned ipv4_uneeded : 1;
+  unsigned ipv6_uneeded : 1;
+  unsigned target_ips : 1;
+};
+
 int verify_hostname(const char *hostname,
                     const int len) {
   int index;
@@ -71,6 +79,8 @@ void set_hints(struct addrinfo *hints,
 
   hints->ai_socktype = SOCK_STREAM;
   hints->ai_flags = AI_PASSIVE;
+
+  return;
 }
 
 void get_address_info(struct addrinfo *info,
@@ -86,35 +96,77 @@ void get_address_info(struct addrinfo *info,
         gai_strerror(return_value));
     exit(1);
   }
+
+  return;
 }
 
-void bind_sockets(struct server *server,
-                  struct addrinfo *address_info,
-                  enum address_type ip_type) {
-  // Flags to determine if a socket of either IPv4
-  // or IPv6 needs to be bound and collected
-  struct binding_flags {
-    unsigned ipv4_uneeded : 1;
-    unsigned ipv6_uneeded : 1;
-  };
+void set_flags(struct binding_flags *flags,
+               struct server_options *options) {
+  memset(flags, 0, sizeof(*flags));
 
-  struct binding_flags flags = {0, 0};
-
-  switch (ip_type) {
+  switch (options->ip_type) {
   case IPV4:
-    flags.ipv6_uneeded = 1;
+    flags->ipv6_uneeded = 1;
     break;
   case IPV6:
-    flags.ipv4_uneeded = 1;
+    flags->ipv4_uneeded = 1;
     break;
   default:
     break;
   }
 
+  if (options->ip_addresses != NULL)
+    flags->target_ips = 1;
+
+  return;
+}
+
+int address_allowed(struct ip_address *allowed, struct sockaddr *sockaddr, unsigned flag) {
+  if (!flag)
+    return 1;
+
+  switch (sockaddr->sa_family) {
+    case AF_INET:
+      char str[INET_ADDRSTRLEN];
+      break;
+    case AF_INET6:
+      char str[INET6_ADDRSTRLEN];
+  }
+
+  
+}
+
+void add_listening_socket(
+    struct server *server, struct addrinfo *info,
+    struct server_options *options) {}
+
+void bind_sockets(
+    struct server *server,
+    struct addrinfo *address_info,
+    struct server_options *options) {
+
+  struct binding_flags *flags;
+  set_flags(flags, options);
+
   struct listening_socket listening_sock;
   for (struct addrinfo *p = address_info;
        p != NULL; p = p->ai_next) {
+    if (flags->ipv4_uneeded && flags->ipv6_uneeded)
+      break;
+    
+    switch (p->ai_family) {
+      case AF_INET:
+        if (flags->ipv4_uneeded)
+          continue;
+        if (flags->target_ips) {
+          char addr_str[INET_ADDRSTRLEN];
+          struct sockaddr_in *addr_in = (struct sockaddr_in *)p;
+          inet_ntop(AF_INET, &(addr_in->sin_addr), addr_str, INET_ADDRSTRLEN);
+        }
+
+
   }
+
 }
 
 struct server
