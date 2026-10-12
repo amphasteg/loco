@@ -1,4 +1,4 @@
-#include "loco.h"
+#include "../include/loco.h"
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef _WIN32
@@ -21,47 +21,6 @@ struct binding_flags {
   unsigned ipv6_uneeded : 1;
   unsigned target_ips : 1;
 };
-
-int verify_hostname(const char *hostname,
-                    const int len) {
-  int index;
-  for (int index = 0; index < len; index++) {
-    if (hostname[index] == '\0')
-      break;
-  }
-
-  /*The POSIX standard does not specify if the
-   * last character of a truncated hostname ends
-   * with '\0', so if the index is set to the last
-   * available slot of the char, we cannot be
-   * certain if it was truncated, hence the need
-   * to verify that the index is not greather than
-   * the second to last index
-   */
-  if (index < len - 1)
-    return 0;
-  else
-    return -1;
-}
-
-char *get_hostname(void) {
-  char *hostname;
-  for (int i = 100;; i += 100) {
-    int error_code;
-    if ((error_code = gethostname(hostname, i)) !=
-        0) {
-      fprintf(stderr,
-              "Error retrieiving hostname. Error "
-              "code %d\n",
-              error_code);
-      exit(errno);
-    }
-
-    if (verify_hostname(hostname, i) == 0)
-      break;
-  }
-  return hostname;
-}
 
 void set_hints(struct addrinfo *hints,
                enum address_type type) {
