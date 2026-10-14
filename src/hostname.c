@@ -1,8 +1,18 @@
 #ifdef _WIN32
 #include <Winsock2.h>
+#else
+#include <unistd.h>
 #endif
-#include <stdlib.h>
 #include "internal.h"
+#include <errno.h>
+#include <stdlib.h>
+
+/**
+ * Verifies hostname was not truncated when
+ * returning from the 'gethostname' call. If
+ * truncated, the program returns 0. If not, it
+ * will return the length of the string
+ */
 int verify_hostname(const char *hostname,
                     const int len) {
   int index;
@@ -22,34 +32,40 @@ int verify_hostname(const char *hostname,
   if (index < len - 1)
     return 0;
   else
-    return 1;
+    return index;
 }
 
-int get_hostname(char **hostname) {
+char *get_hostname() {
   int size = 100;
+  char *hostname = malloc(sizeof(char) * size);
 
-  if (*hostname != NULL) {
-    free(*hostname);
-    *hostname = malloc(sizeof(char) * size);
-  }
-
-  while (*hostname != NULL)
-  {
+  do {
     int error_code;
-    if ((error_code = gethostname(*hostname, size)) !=
-        0) {
-      return error_code;
+    if ((error_code =
+             gethostname(hostname, size)) != 0) {
+      return NULL;
     }
 
-    if (verify_hostname(*hostname, size) == 0)
+    int hostname_len =
+        verify_hostname(hostname, size);
+
+    // Hostname was validated and has a length.
+    // Reallocate to correct size and break.
+    if (hostname_len > 0) {
+      hostname = realloc(
+          hostname, sizeof(char) * hostname_len);
       break;
+    }
 
     size += 100;
-    realloc(*hostname, sizeof(char) * size);
+    hostname =
+        realloc(hostname, sizeof(char) * size);
+  } while (hostname != NULL);
+
+  if (hostname == NULL) {
+    errno = ENOMEM;
+    return NULL;
   }
 
-  if (*hostname == NULL)
-    return 2;
-
-  return 0;
+  return hostname;
 }
