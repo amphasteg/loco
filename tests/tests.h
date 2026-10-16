@@ -10,4 +10,10 @@
     }                                                                          \
     return 0;                                                                  \
   } while (0);
+
+#define malloc mock_malloc
+
+void set_mock_malloc_errno(int);
+void *mock_malloc(size_t);
 #endif
+
