@@ -55,4 +55,4 @@ dkms.conf
 *.dwo
 
 #CMake Build Folder
-./build
+build
