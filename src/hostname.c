@@ -3,9 +3,9 @@
 #else
 #include <unistd.h>
 #endif
-#include "internal.h"
 #include <errno.h>
 #include <stdlib.h>
+#include <loco_internal.h>
 
 /**
  * Verifies hostname was not truncated when
