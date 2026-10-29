@@ -4,32 +4,34 @@
 #include <unistd.h>
 #endif
 #include <errno.h>
-#include <stdlib.h>
 #include <loco_internal.h>
+#include <stdlib.h>
 
 /**
  * Verifies hostname was not truncated when
  * returning from the 'gethostname' call. If
  * truncated, the program returns 0. If not, it
  * will return the length of the string
+ *
+ * The POSIX standard does not specify if the
+ * last character of a truncated hostname ends
+ * with '\0', so if the last char is set to be
+ * '\0', we cannot be certain if it was truncated,
+ * hence the need to verify that the hostname.
+ *
+ * @param hostname Null terminated string
+ * @param size Size of the container that holds
+ * the string, including the null terminator '\0'
  */
 int verify_hostname(const char *hostname,
-                    const int len) {
-  int index;
-  for (int index = 0; index < len; index++) {
-    if (hostname[index] == '\0')
-      break;
-  }
+                    const int size) {
+  int index = 0;
 
-  /*The POSIX standard does not specify if the
-   * last character of a truncated hostname ends
-   * with '\0', so if the index is set to the last
-   * available slot of the char, we cannot be
-   * certain if it was truncated, hence the need
-   * to verify that the index is not greather than
-   * the second to last index
-   */
-  if (index < len - 1)
+  while (index < size && hostname[index])
+    index++;
+
+  // If index fits within the container, string was not truncated. 
+  if (index < size - 1)
     return 0;
   else
     return index;

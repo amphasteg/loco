@@ -1,5 +1,4 @@
-#include <_ctype.h>
-#include <_stdlib.h>
+#include <_stdio.h>
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
@@ -44,34 +43,59 @@ int assert_int_equal(int expected, int actual) {
   return 0;
 }
 
-struct test *create_test(int (*func)(void),
+void create_test(int (*func)(void),
                          const char *name,
-                         int name_len) {
-  struct test *new_test =
+                         int name_len, struct test **new_test) {
+  *new_test =
       malloc(sizeof(struct test));
-  new_test->function = func;
-  new_test->next = NULL;
-  new_test->name_len = name_len;
-  int test_name_size =
-      (name_len + 1) * sizeof(char);
-  new_test->test_name = malloc(test_name_size);
-  strncpy(new_test->test_name, name,
-          test_name_size);
-  new_test->test_name[name_len] = '\0';
 
-  return new_test;
+  if (*new_test == NULL)
+    fprintf(stderr, "Failed to assign memory for "
+                    "testing structure.\n");
+
+  (*new_test)->name_len = name_len;
+
+  (*new_test)->function = malloc(sizeof(*func));
+  if ((*new_test)->function == NULL) {
+    fprintf(stderr, "Failed to allocate memory "
+                    "for test function.\n");
+    free(*new_test);
+  }
+
+  (*new_test)->function = func;
+
+  (*new_test)->next = NULL;
+
+  int test_name_len = name_len + 1;
+  int test_name_size =
+      test_name_len * sizeof(char);
+  (*new_test)->test_name = malloc(test_name_size);
+  if ((*new_test)->test_name == NULL) {
+    fprintf(stderr, "Failed to assign memory for "
+                    "test name.\n");
+    free(*new_test);
+  }
+
+  strncpy((*new_test)->test_name, name,
+          test_name_len);
+  (*new_test)->test_name[name_len] = '\0';
+  (*new_test)->name_len = name_len;
 }
 
 void add_test(int (*func)(void), const char *name,
-              int name_length) {
-  struct test *next_test;
-  for (struct test *next_test = added_tests;
-       next_test != NULL;
-       next_test = added_tests->next)
+             int name_length) {
+  if (added_tests == NULL) {
+    create_test(func, name, name_length, &added_tests);
+    return;
+  }
+
+  struct test *last_test;
+
+  for (last_test = added_tests; last_test->next != NULL;
+       last_test = added_tests->next)
     ;
 
-  next_test =
-      create_test(func, name, name_length);
+  create_test(func, name, name_length, &(last_test->next));
 }
 
 int run_timed_test(struct test *selected_test) {
@@ -82,7 +106,7 @@ int run_timed_test(struct test *selected_test) {
 
   double time =
       (double)(end - start) / CLOCKS_PER_SEC;
-  printf("Test %s executed in %f second\n",
+  printf("Test %s executed in %f seconds\n",
          selected_test->test_name, time);
   return result;
 }
@@ -151,7 +175,7 @@ int run_all_tests(void) {
 
   for (unit_test = added_tests; unit_test != NULL;
        unit_test = unit_test->next) {
-    printf("Running test %d:%s\n", test_num,
+    printf("Running test #%d: \"%s\"\n", test_num,
            unit_test->test_name);
 
     ret = run_timed_test(unit_test);
@@ -170,20 +194,21 @@ int run_all_tests(void) {
   return ret;
 }
 
-
 int run_tests_by_arg(int argc, char *argv[]) {
   if (argc > 2)
     printf(
-        "Function '%s' only takes one argument (aside "
+        "Function '%s' only takes one argument "
+        "(aside "
         "from program name). Will proceed with "
-        "test using argument: %s.\n", __func__,
-        argv[1]);
+        "test using argument: \"%s\".\n",
+        __func__, argv[1]);
 
   int arg_len = strlen(argv[1]);
   char *str_end = malloc(sizeof(char) * arg_len);
   int index = strtol(argv[1], &str_end, 10);
 
-  if ((index == 0 && errno == EINVAL) || str_end != NULL)
+  if ((index == 0 && errno == EINVAL) ||
+      str_end != NULL)
     return run_test_by_name(argv[1], arg_len);
 
   return run_test_by_index(index);

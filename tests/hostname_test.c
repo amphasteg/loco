@@ -1,12 +1,30 @@
+#include <stdio.h>
+#include <string.h>
 #include <sys/errno.h>
 #include <tests.h>
 #include "hostname.c"
+#include "testing_functions.h"
 
-int main(void) {
-  set_mock_malloc_errno(ENOMEM);
-  void *test = malloc(1);
-  if (test == NULL)
+int verify_hostname_test_success() {
+  char hostname[6] = "BOOM\0\0";
+  return verify_hostname(hostname, 6);
+}
+
+int verify_hostname_test_truncated() {
+  char hostname[5] = "BOOM\0";
+  int ret = verify_hostname(hostname, 5);
+  if (ret != 0) {
+    printf("Return value: %d\n", ret);
     return 0;
-  else
-    return -1;
+  }
+
+  return 1;
+}
+
+int main(int argc, char* argv[]) {
+  const char *success = "success\0";
+  const char *truncated= "truncated\0";
+  add_test(&verify_hostname_test_success, success, strlen(success));
+  add_test(&verify_hostname_test_truncated, truncated, strlen(truncated));
+  run_all_tests();
 }

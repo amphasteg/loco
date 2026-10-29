@@ -56,3 +56,7 @@ dkms.conf
 
 #CMake Build Folder
 build
+
+*.DS_STORE
+CMakeFiles
+*compile_commands.json
