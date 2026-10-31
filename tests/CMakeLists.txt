@@ -16,7 +16,7 @@ function(create_test test_name test_file)
   add_test(NAME ${test_name} COMMAND ${test_name})
 endfunction()
 
-add_library(test_lib testing_functions.c)
+add_library(test_lib testing_functions.c terminal_color.c)
 
 target_sources(test_lib
 PUBLIC
@@ -25,6 +25,7 @@ PUBLIC
     .
   FILES
     tests.h
+    terminal_color.h
 PRIVATE
   FILE_SET private_headers
   TYPE HEADERS
