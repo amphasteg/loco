@@ -1,22 +1,7 @@
-function(create_test test_name test_file)
-  add_executable(${test_name} ${test_file})
-
-  target_sources(${test_name}
-  PRIVATE
-    FILE_SET private_headers
-    TYPE HEADERS
-    BASE_DIRS
-      ../src
-    FILES
-      ../src/loco_internal.h
-)
-
-  target_link_libraries(${test_name} PUBLIC loco PRIVATE test_lib)
-
-  add_test(NAME ${test_name} COMMAND ${test_name})
-endfunction()
-
-add_library(test_lib testing_functions.c terminal_color.c)
+add_library(test_lib
+  testing_functions.c
+  terminal_color.c
+  testing_mocks.c)
 
 target_sources(test_lib
 PUBLIC
@@ -32,4 +17,25 @@ PRIVATE
     terminal_color.h
 )
 
-create_test(hostname_tests ../tests/hostname_test.c ../src/hostname.c)
+add_executable(test_runner test_runner.c)
+target_link_libraries(test_runner PRIVATE loco test_lib)
+target_sources(test_runner
+  PRIVATE
+  FILE_SET private_headers
+  TYPE HEADERS
+  BASE_DIRS
+    ../src
+  FILES
+    ../src/loco_internal.h
+)
+
+target_sources(test_runner
+  PRIVATE
+  FILE_SET tests
+  TYPE SOURCES
+  BASE_DIRS
+    ../tests
+  FILES
+    ../tests/hostname_test.c
+
+)

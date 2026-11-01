@@ -1,14 +1,9 @@
-#include <ctype.h>
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/errno.h>
-#include <testing_functions.h>
 #include <terminal_color.h>
+#include <testing_functions.h>
 #include <time.h>
-
-#undef malloc
 
 struct test {
   int name_len;
@@ -17,29 +12,23 @@ struct test {
   struct test *next;
 };
 
-int mock_malloc_errno = 0;
-struct test *added_tests = NULL;
+struct test_suite {
+  int name_len;
+  char *suite_name;
+  struct test *test_list;
+};
 
-void *mock_malloc(size_t size) {
-  if (mock_malloc_errno == 0)
-    return malloc(size);
-
-  errno = mock_malloc_errno;
-  return NULL;
-}
-
-void set_mock_malloc_errno(int error) {
-  mock_malloc_errno = error;
-}
-
-int assert_int_equal(int expected, int actual) {
-  if (expected != actual) {
-    printf("ERROR: Expected %d, got %d instead "
-           "at line %d\n",
-           expected, actual, __LINE__);
-    return 1;
-  }
-  return 0;
+struct test_suite *
+create_test_suite(const char *suite_name,
+                  int name_len) {
+  struct test_suite *new_test_suite =
+      malloc(sizeof(struct test_suite));
+  new_test_suite->name_len = name_len;
+  new_test_suite->suite_name = strndup(
+      suite_name,
+      name_len + 1); //+1 for null terminator
+  new_test_suite->test_list = NULL;
+  return new_test_suite;
 }
 
 void create_test(int (*func)(void),
@@ -81,18 +70,34 @@ void create_test(int (*func)(void),
 }
 
 void add_test(int (*func)(void), const char *name,
-              int name_length) {
-  if (added_tests == NULL) {
+              int name_length,
+              struct test_suite *suite) {
+  if (suite == NULL) {
+    fputs("Testing suite supplied is null.\n",
+          stderr);
+    return;
+  }
+
+  if (name == NULL) {
+    fputs("No name was entered for test. Will "
+          "`null` in place",
+          stderr);
+    name = malloc(sizeof(char) * 5);
+    name = "null";
+    name_length = 4;
+  }
+
+  if (suite->test_list == NULL) {
     create_test(func, name, name_length,
-                &added_tests);
+                &(suite->test_list));
     return;
   }
 
   struct test *last_test;
 
-  for (last_test = added_tests;
+  for (last_test = suite->test_list;
        last_test->next != NULL;
-       last_test = added_tests->next)
+       last_test = suite->test_list->next)
     ;
 
   create_test(func, name, name_length,
@@ -110,26 +115,6 @@ int run_timed_test(struct test *selected_test) {
       1000.0;
   printf("Execution time %fms\n", time);
   return result;
-}
-
-int run_test_by_index(int index) {
-  struct test *test_to_run = added_tests;
-
-  int i = index;
-  while (i != 0 && test_to_run != NULL) {
-    test_to_run = test_to_run->next;
-    i--;
-  }
-
-  if (test_to_run == NULL) {
-    fprintf(
-        stderr,
-        "The test provided %d was not found.\n",
-        index);
-    return 1;
-  }
-
-  return run_timed_test(test_to_run);
 }
 
 int print_test_results(int tests_ran,
@@ -156,19 +141,26 @@ int print_test_results(int tests_ran,
   return 0;
 }
 
-int run_tests(void) {
+int run_tests(struct test_suite *suite) {
   int test_num = 0;
   int test_successes = 0;
   int ret = 0;
 
-  if (added_tests == NULL) {
+  if (suite == NULL) {
+    fputs("Testing suite is null.", stderr);
+    return 1;
+  }
+
+  if (suite->test_list == NULL) {
     fputs("No tests were added! Add some tests "
           "using the function `add_test`.\n",
           stderr);
     return 1;
   }
 
-  for (struct test *unit_test = added_tests;
+  printf("Running tests suite: %s\n", suite->suite_name);
+
+  for (struct test *unit_test = suite->test_list;
        unit_test != NULL;
        unit_test = unit_test->next) {
     test_num++;

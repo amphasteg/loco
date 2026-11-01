@@ -1,4 +1,5 @@
 #include "hostname.c"
+#include "testing_functions.h"
 #include <stdio.h>
 #include <string.h>
 #include <sys/errno.h>
@@ -28,14 +29,16 @@ int verify_hostname_test_no_null_terminator() {
   return 1;
 }
 
-int main(int argc, char *argv[]) {
+void run_hostname_test_suite() {
+  struct test_suite *suite = create_test_suite(
+      "hostname tests", strlen("hostname tests"));
   add_test(&verify_hostname_test_success,
-           "success", strlen("success"));
+           "success", strlen("success"), suite);
   add_test(&verify_hostname_test_truncated,
-           "truncated", strlen("truncated"));
+           "truncated", strlen("truncated"), suite);
   add_test(
       &verify_hostname_test_no_null_terminator,
       "no null terminator",
-      strlen("no null terminator"));
-  run_tests();
+      strlen("no null terminator"), suite);
+  run_tests(suite);
 }
