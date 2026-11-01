@@ -25,5 +25,5 @@ target_sources(loco
 
 if (BUILD_TESTS)
   enable_testing()
-  add_subdirectory(tests)
+  add_subdirectory(./testing_framework)
 endif()

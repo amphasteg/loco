@@ -1,4 +1,3 @@
-#include <_stdio.h>
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
@@ -6,8 +5,8 @@
 #include <string.h>
 #include <sys/errno.h>
 #include <testing_functions.h>
+#include <terminal_color.h>
 #include <time.h>
-#define NORMAL 0
 
 #undef malloc
 
@@ -44,10 +43,9 @@ int assert_int_equal(int expected, int actual) {
 }
 
 void create_test(int (*func)(void),
-                         const char *name,
-                         int name_len, struct test **new_test) {
-  *new_test =
-      malloc(sizeof(struct test));
+                 const char *name, int name_len,
+                 struct test **new_test) {
+  *new_test = malloc(sizeof(struct test));
 
   if (*new_test == NULL)
     fprintf(stderr, "Failed to assign memory for "
@@ -83,19 +81,22 @@ void create_test(int (*func)(void),
 }
 
 void add_test(int (*func)(void), const char *name,
-             int name_length) {
+              int name_length) {
   if (added_tests == NULL) {
-    create_test(func, name, name_length, &added_tests);
+    create_test(func, name, name_length,
+                &added_tests);
     return;
   }
 
   struct test *last_test;
 
-  for (last_test = added_tests; last_test->next != NULL;
+  for (last_test = added_tests;
+       last_test->next != NULL;
        last_test = added_tests->next)
     ;
 
-  create_test(func, name, name_length, &(last_test->next));
+  create_test(func, name, name_length,
+              &(last_test->next));
 }
 
 int run_timed_test(struct test *selected_test) {
@@ -105,9 +106,9 @@ int run_timed_test(struct test *selected_test) {
   end = clock();
 
   double time =
-      (double)(end - start) / CLOCKS_PER_SEC;
-  printf("Test %s executed in %f seconds\n",
-         selected_test->test_name, time);
+      ((double)(end - start) / CLOCKS_PER_SEC) *
+      1000.0;
+  printf("Execution time %fms\n", time);
   return result;
 }
 
@@ -131,85 +132,62 @@ int run_test_by_index(int index) {
   return run_timed_test(test_to_run);
 }
 
-struct test *find_test_by_name(const char *name,
-                               int name_len) {
-  struct test *test_to_run = added_tests;
-  int len;
+int print_test_results(int tests_ran,
+                       int test_successes) {
+  fputs("Tests passed: ", stdout);
+  float success_percentage =
+      ((float)test_successes / tests_ran) * 100.0;
+  float percent_threshold = 80.0;
 
-  while (test_to_run != NULL) {
-    if (test_to_run->name_len > name_len)
-      len = name_len;
+  if (success_percentage < 100.0) {
+    if (success_percentage < percent_threshold)
+      print_colored_text(RED, "%.3g%%\n",
+                         success_percentage);
     else
-      len = test_to_run->name_len;
+      print_colored_text(YELLOW, "%.3g%%\n",
+                         success_percentage);
 
-    if (strncmp(name, test_to_run->test_name,
-                len) == 0)
-      break;
-
-    test_to_run = test_to_run->next;
-  }
-
-  return test_to_run;
-}
-
-int run_test_by_name(const char *name,
-                     int name_len) {
-  struct test *test_to_run =
-      find_test_by_name(name, name_len);
-
-  if (test_to_run == NULL) {
-    fprintf(
-        stderr,
-        "The test provided %s was not found.\n",
-        name);
     return 1;
   }
 
-  return run_timed_test(test_to_run);
+  print_colored_text(GREEN, "%.3g%%\n",
+                     success_percentage);
+
+  return 0;
 }
 
-int run_all_tests(void) {
-  struct test *unit_test;
-  int test_num = 1;
+int run_tests(void) {
+  int test_num = 0;
+  int test_successes = 0;
   int ret = 0;
 
-  for (unit_test = added_tests; unit_test != NULL;
-       unit_test = unit_test->next) {
-    printf("Running test #%d: \"%s\"\n", test_num,
-           unit_test->test_name);
-
-    ret = run_timed_test(unit_test);
-
-    if (ret != 0) {
-      fprintf(stderr,
-              "Test \"%s\" (#%d) returned %d\n",
-              unit_test->test_name, test_num,
-              ret);
-      return ret;
-    }
-
-    test_num++;
+  if (added_tests == NULL) {
+    fputs("No tests were added! Add some tests "
+          "using the function `add_test`.\n",
+          stderr);
+    return 1;
   }
 
-  return ret;
-}
+  for (struct test *unit_test = added_tests;
+       unit_test != NULL;
+       unit_test = unit_test->next) {
+    test_num++;
+    char *test_header;
+    puts("---------------------");
+    printf("Test #%d: \"%s\"\n", test_num,
+           unit_test->test_name);
+    puts("---------------------");
 
-int run_tests_by_arg(int argc, char *argv[]) {
-  if (argc > 2)
-    printf(
-        "Function '%s' only takes one argument "
-        "(aside "
-        "from program name). Will proceed with "
-        "test using argument: \"%s\".\n",
-        __func__, argv[1]);
+    if ((ret = run_timed_test(unit_test)) != 0) {
+      print_colored_text(RED, "FAILURE!\n");
+      printf("Returned non-zero exit code: %d\n",
+             ret);
+    } else {
+      print_colored_text(GREEN, "SUCCESS!\n");
+      test_successes++;
+    }
+  }
 
-  int arg_len = strlen(argv[1]);
-  char *str_end = malloc(sizeof(char) * arg_len);
-  int index = strtol(argv[1], &str_end, 10);
-
-  if ((index == 0 && errno == EINVAL) ||
-      str_end != NULL)
-    return run_test_by_name(argv[1], arg_len);
-
-  return run_test_by_index(index);
+  return print_test_results(test_num,
+                            test_successes);
 }

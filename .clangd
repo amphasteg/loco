@@ -1,3 +1,4 @@
 Documentation:
   CommentFormat: Doxygen
-  CompilationDatabase: "build"
+CompileFlags:
+  CompilationDatabase: "./build"
