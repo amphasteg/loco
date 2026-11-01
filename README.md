@@ -1,7 +1,7 @@
-# 🚂💨 Loco
+# Loco
 A cross platform HTTP server library written to help myself improve and learn C programming. 
 
-## ❗Disclaimer
+## Disclaimer
 This project is learning purposes. While I would enjoy making this "production-grade", I am brand new to C. As such, the primary objective of this project is to become better at programming with it. I am no expert and I am open to expanding my knowledge and skillset where I can. 
 
 ## Goals
