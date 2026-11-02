@@ -1,8 +1,6 @@
 #include "hostname.c"
-#include "testing_functions.h"
-#include <stdio.h>
+#include <testing_functions.h>
 #include <string.h>
-#include <sys/errno.h>
 #include <tests.h>
 
 int verify_hostname_test_success() {

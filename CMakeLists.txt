@@ -23,6 +23,10 @@ target_sources(loco
       include/loco.h
 )
 
+if (WIN32)
+  target_link_libraries(loco wsock32 ws2_32)
+endif()
+
 if (BUILD_TESTS)
   enable_testing()
   add_subdirectory(./testing_framework)

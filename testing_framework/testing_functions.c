@@ -18,15 +18,25 @@ struct test_suite {
   struct test *test_list;
 };
 
+char *string_dupl(const char *original, size_t n) {
+  char *new_string = malloc(n + 1); //+1 for null terminator
+#ifdef WIN32
+  strncpy_s(new_string, n+1, original, n);
+#else
+  strncpy(new_string, original, n);
+#endif
+
+  new_string[n] = '\0';
+  return new_string;
+}
+
 struct test_suite *
 create_test_suite(const char *suite_name,
                   int name_len) {
   struct test_suite *new_test_suite =
       malloc(sizeof(struct test_suite));
   new_test_suite->name_len = name_len;
-  new_test_suite->suite_name = strndup(
-      suite_name,
-      name_len + 1); //+1 for null terminator
+  new_test_suite->suite_name = string_dupl(suite_name, name_len);
   new_test_suite->test_list = NULL;
   return new_test_suite;
 }
@@ -42,7 +52,7 @@ void create_test(int (*func)(void),
 
   (*new_test)->name_len = name_len;
 
-  (*new_test)->function = malloc(sizeof(*func));
+  (*new_test)->function = malloc(sizeof(func));
   if ((*new_test)->function == NULL) {
     fprintf(stderr, "Failed to allocate memory "
                     "for test function.\n");
@@ -63,8 +73,13 @@ void create_test(int (*func)(void),
     free(*new_test);
   }
 
+#ifndef WIN32
   strncpy((*new_test)->test_name, name,
           test_name_len);
+#else
+  strncpy_s((*new_test)->test_name, test_name_len * sizeof(char), name,
+          test_name_len);
+#endif
   (*new_test)->test_name[name_len] = '\0';
   (*new_test)->name_len = name_len;
 }
@@ -119,7 +134,7 @@ int run_timed_test(struct test *selected_test) {
 
 int print_test_results(int tests_ran,
                        int test_successes) {
-  fputs("Tests passed: ", stdout);
+  fputs("Tests passed: \n", stdout);
   float success_percentage =
       ((float)test_successes / tests_ran) * 100.0;
   float percent_threshold = 80.0;
@@ -147,7 +162,7 @@ int run_tests(struct test_suite *suite) {
   int ret = 0;
 
   if (suite == NULL) {
-    fputs("Testing suite is null.", stderr);
+    fputs("Testing suite is null.\n", stderr);
     return 1;
   }
 
@@ -165,10 +180,10 @@ int run_tests(struct test_suite *suite) {
        unit_test = unit_test->next) {
     test_num++;
     char *test_header;
-    puts("---------------------");
+    puts("---------------------\n");
     printf("Test #%d: \"%s\"\n", test_num,
            unit_test->test_name);
-    puts("---------------------");
+    puts("---------------------\n");
 
     if ((ret = run_timed_test(unit_test)) != 0) {
       print_colored_text(RED, "FAILURE!\n");
