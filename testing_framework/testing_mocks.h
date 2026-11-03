@@ -1,7 +1,5 @@
 #ifndef LOCO_TESTING_MOCKS
 #define LOCO_TESTING_MOCKS
-
 void set_mock_malloc_errno(int errnum);
-void *mock_malloc(unsigned long ptr);
-
+void set_gethostname_mocks(int error_num, char *mock_hostname, int mock_hostname_len);
 #endif

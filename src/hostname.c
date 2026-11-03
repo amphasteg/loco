@@ -1,12 +1,14 @@
+#include <stdio.h>
 #ifdef _WIN32
 #include <Winsock2.h>
 #else
-#include <unistd.h>
-#endif
 #include <errno.h>
-#include <loco_internal.h>
+#include <unistd.h>
 #include <stdlib.h>
+#endif
+#include <loco_internal.h>
 
+#undef mock_malloc
 /**
  * Verifies hostname was not truncated when
  * returning from the 'gethostname' call. If
@@ -41,10 +43,19 @@ char *get_hostname() {
   int size = 100;
   char *hostname = malloc(sizeof(char) * size);
 
+  if (hostname == NULL) {
+    return NULL;
+  }
+
   do {
-    int error_code;
-    if ((error_code =
-             gethostname(hostname, size)) != 0) {
+    int error_code = gethostname(hostname, size);
+    if (error_code != 0) {
+#ifdef WIN32
+    int error = WSAGetLastError();
+    printf("`gethostname` returned error. errno: %d\n", error);
+#else
+    printf("`gethostname` returned error. errno: %d\n", errno);
+#endif
       return NULL;
     }
 
