@@ -3,8 +3,8 @@
 #include <Winsock2.h>
 #else
 #include <errno.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 #endif
 #include <loco_internal.h>
 
@@ -24,19 +24,21 @@
  * @param hostname Null terminated string
  * @param size Size of the container that holds
  * the string, including the null terminator '\0'
+ * @return The size of the hostname
  */
 int verify_hostname(const char *hostname,
                     const int size) {
   int index = 0;
 
-  while (index < size && hostname[index])
-    index++;
+  while (index < size && hostname[index] != '\0')
+    index++; 
 
-  // If index fits within the container, string was not truncated. 
+  // If index fits within the container, string
+  // was not truncated.
   if (index < size - 1)
-    return 0;
+    return index + 1; //Return the size of the string including null char
   else
-    return index;
+    return 0;
 }
 
 char *get_hostname() {
@@ -51,10 +53,14 @@ char *get_hostname() {
     int error_code = gethostname(hostname, size);
     if (error_code != 0) {
 #ifdef WIN32
-    int error = WSAGetLastError();
-    printf("`gethostname` returned error. errno: %d\n", error);
+      int error = WSAGetLastError();
+      printf("`gethostname` returned error. "
+             "errno: %d\n",
+             error);
 #else
-    printf("`gethostname` returned error. errno: %d\n", errno);
+      printf("`gethostname` returned error. "
+             "errno: %d\n",
+             errno);
 #endif
       return NULL;
     }

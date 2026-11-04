@@ -24,19 +24,41 @@ void *mock_malloc(size_t ptr_size) {
 int mock_gethostname(char *name, int name_len) {
   if (gethostname_errno != 0) {
     name = NULL;
+
+#ifdef WIN32
+    WSASetLastError(gethostname_errno);
+#endif
+
     return gethostname_errno;
   }
 
-  if (gethostname_string == NULL)
+  if (gethostname_string == NULL) {
+
+#ifdef WIN32
+    WSADATA wsadata;
+    int status =
+        WSAStartup(MAKEWORD(2, 2), &wsadata);
+    if (status != 0) {
+      printf("Failed to start WSA. Error: %d\n",
+             status);
+      return status;
+    }
+#endif
+
     return gethostname(name, name_len);
+  }
 
   int hostname_len = strlen(gethostname_string);
   int len;
 
-  if (hostname_len > name_len)
+  if (hostname_len > name_len) {
     strncpy(name, gethostname_string, name_len);
-  else
-    strncpy(name, gethostname_string, hostname_len);
+    name[name_len] = '\0';
+  } else {
+    strncpy(name, gethostname_string,
+            hostname_len);
+    name[hostname_len] = '\0';
+  }
 
   return 0;
 }
@@ -45,11 +67,10 @@ void set_mock_malloc_errno(int error) {
   mock_malloc_errno = error;
 }
 
-void set_mock_gethostname_string(const char *host_name,
-                       const int name_len) {
+void set_mock_gethostname_string(
+    const char *host_name, const int name_len) {
 
   if (host_name == NULL) {
-    fputs("No mock hostname was provided\n", stderr);
     return;
   }
 
@@ -69,7 +90,10 @@ void set_mock_gethostname_errno(int err) {
   gethostname_errno = err;
 }
 
-void set_gethostname_mocks(int error_num, char *mock_hostname, int mock_hostname_len){
-  set_mock_gethostname_string(mock_hostname, mock_hostname_len);
+void set_gethostname_mocks(
+    int error_num, char *mock_hostname,
+    int mock_hostname_len) {
+  set_mock_gethostname_string(mock_hostname,
+                              mock_hostname_len);
   set_mock_gethostname_errno(error_num);
 }
