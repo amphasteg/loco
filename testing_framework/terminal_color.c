@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <terminal_color.h>
-#include <vadefs.h>
 
 unsigned colors[AVAILABLE_COLORS] = {-1};
 

@@ -46,6 +46,10 @@ int mock_gethostname(char *name, int name_len) {
 #endif
 
     return gethostname(name, name_len);
+
+#ifdef WIN32
+    int cleanup_val = WSACleanup();
+#endif
   }
 
   int hostname_len = strlen(gethostname_string);
