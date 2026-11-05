@@ -1,12 +1,8 @@
-#ifndef _WIN32
-#include <stddef.h>
-#endif
+#include <server_options.h>
 
 struct server;
 
-struct server_options;
-
-struct server create_server(struct server_options *);
+struct server *create_server(struct server_options *);
 
 struct server_options initialize_server_options(void);
 

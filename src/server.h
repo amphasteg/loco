@@ -13,20 +13,6 @@ struct server {
   char *hostname;
 };
 
-struct ip_address {
-  char *address;
-  size_t address_len;
-};
-
-/** Options used to configure a server */
-struct server_options {
-  enum address_type ip_type;
-  size_t port_string_len;
-  char *port;
-  //If the user wishes to specify a list of IP addresses to use in this program, they may do so in this list.
-  //TODO this is really dumb and will break the program when trying to access this "list"
-  struct ip_address *ip_addresses; 
-};
 
 /** Contains the IP type, the adress, socket that is bound, and the next socket
  * in the linked list */
