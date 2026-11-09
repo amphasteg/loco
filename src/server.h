@@ -1,3 +1,4 @@
+#include <loco_string.h>
 #include <address_type.h>
 #include <stddef.h>
 
@@ -8,24 +9,6 @@ struct server {
    * will be set to IPV4
    */
   enum address_type listening_type;
-  size_t listening_socket_len;
-  struct listening_socket *listening_sockets;
-  size_t hostname_len;
-  char *hostname;
-};
-
-
-/** Contains the IP type, the adress, socket that is bound, and the next socket
- * in the linked list */
-struct listening_socket {
-  /** The IP version used for this specific socket */
-  enum address_type listening_type;
-  /** File descripter for listening socket */
-  int socket;
-  /** Length of IP address for given listening socket */
-  size_t address_len;
-  /** IP address for bound socket */
-  char *address;
-  /** Next listening socket in linked list */
-  struct listening_socket *next;
+  struct string *hostname;
+  struct listening_sock_list *socket_list;
 };

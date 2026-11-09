@@ -6,9 +6,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #endif
-#include <loco_internal.h>
+#include <hostname.h>
 
-#undef mock_malloc
 /**
  * Verifies hostname was not truncated when
  * returning from the 'gethostname' call. If
@@ -31,60 +30,76 @@ int verify_hostname(const char *hostname,
   int index = 0;
 
   while (index < size && hostname[index] != '\0')
-    index++; 
+    index++;
 
   // If index fits within the container, string
   // was not truncated.
   if (index < size - 1)
-    return index + 1; //Return the size of the string including null char
+    return index +
+           1; // Return the size of the string
+              // including null char
   else
     return 0;
 }
 
-char *get_hostname() {
+struct string *get_hostname() {
   int size = 100;
+  struct string *hostname_str =
+      malloc(sizeof(struct string));
   char *hostname = malloc(sizeof(char) * size);
+  char *resized_hostname;
+  int hostname_size = 0;
 
-  if (hostname == NULL) {
+  if (hostname == NULL || hostname_str) {
+    fputs("Failed to allocate memory for "
+          "hostname\n",
+          stderr);
     return NULL;
   }
 
-  do {
+  while (hostname_size == 0 && hostname != NULL) {
     int error_code = gethostname(hostname, size);
     if (error_code != 0) {
+
 #ifdef WIN32
-      int error = WSAGetLastError();
-      printf("`gethostname` returned error. "
-             "errno: %d\n",
-             error);
-#else
-      printf("`gethostname` returned error. "
-             "errno: %d\n",
-             errno);
+      error_code = WSAGetLastError();
 #endif
+
+      printf("`gethostname` returned error. "
+             "Error: %d\n",
+             errno);
+
       return NULL;
     }
 
-    int hostname_len =
+    hostname_size =
         verify_hostname(hostname, size);
 
-    // Hostname was validated and has a length.
-    // Reallocate to correct size and break.
-    if (hostname_len > 0) {
-      hostname = realloc(
-          hostname, sizeof(char) * hostname_len);
-      break;
-    }
-
     size += 100;
-    hostname =
-        realloc(hostname, sizeof(char) * size);
-  } while (hostname != NULL);
 
-  if (hostname == NULL) {
+    resized_hostname =
+        realloc(hostname, sizeof(char) * size);
+    free(hostname);
+
+    // This will set hostname to null if fail,
+    // this will be caught later if the case
+    hostname = resized_hostname;
+  }
+
+  resized_hostname = realloc(hostname, sizeof(char) *
+                                   hostname_size);
+
+  if (resized_hostname == NULL) {
     errno = ENOMEM;
     return NULL;
   }
 
-  return hostname;
+  free(hostname); 
+
+  hostname = resized_hostname;
+
+  hostname_str->string = hostname;
+  hostname_str->string_size = hostname_size;
+
+  return hostname_str;
 }

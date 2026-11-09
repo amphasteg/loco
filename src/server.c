@@ -1,5 +1,5 @@
 #include <loco.h>
-#include <loco_internal.h>
+#include <hostname.h>
 #include <server.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +24,6 @@ create_server(struct server_options *options) {
   memset(&hints, 0, sizeof(hints));
 
   server.hostname = get_hostname();
-  server.hostname_len = strlen(server.hostname);
 
   set_hints(&hints, options->ip_type);
   get_address_info(&address_info, &hints,
