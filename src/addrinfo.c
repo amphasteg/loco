@@ -1,27 +1,38 @@
 #include <address_type.h>
+#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #ifdef _WIN32
 #include <WS2tcpip.h>
 #include <Winsock2.h>
 #else
 #include <netdb.h>
+#include <stdlib.h>
 #endif
 
 #ifdef LOCO_RELEASE
 #define HOST NULL
+#define SERVICE "80"
 #else
 #define HOST "localhost"
+#define SERVICE "8080"
 #endif
 
 int get_address_info(struct addrinfo *info,
                      struct addrinfo *hints,
-                     const char *port) {
+                     const int port) {
   int return_value;
+  char service[6];
+
+  if (port == 0 || port > UINT16_MAX)
+    strncpy(service, SERVICE, 4);
+  else
+    snprintf(service, 6, "%d", port);
+
+  service[5] = '\0';
 
   if ((return_value = getaddrinfo(
-           HOST, port, hints, &info)) != 0) {
+           HOST, service, hints, &info)) != 0) {
     fprintf(
         stderr,
         "Error getting address information: %s\n",
@@ -47,6 +58,7 @@ void set_hints(struct addrinfo *hints,
 
   hints->ai_socktype = SOCK_STREAM;
   hints->ai_flags = AI_PASSIVE;
+  hints->ai_protocol = IPPROTO_TCP;
 
   return;
 }

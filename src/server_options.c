@@ -1,9 +1,6 @@
-#include <_string.h>
 #include <loco.h>
-#include <address_type.h>
 #include <stdio.h>
 #include <server_options.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 struct server_options *initialize_server_options() {
@@ -15,17 +12,11 @@ struct server_options *initialize_server_options() {
   }
 
   options->ip_type = IP_BOTH;
-  options->port = NULL;
+  options->port = 0;
 
   return options;
 };
 
-void set_port(const char *port, unsigned int port_len, struct server_options *options) {
-  if (port == NULL) {
-    fputs("`set_port` called with NULL pointer\n", stderr);
-    return;
-  }
-
-  options->port = strndup(port, port_len);
-  options->port_string_len = port_len;
+void set_port(const int port, struct server_options *options) {
+  options->port = port;
 }

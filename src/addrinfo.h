@@ -1,3 +1,4 @@
+#include <stdint.h>
 #ifdef _WIN32
 #include <WS2tcpip.h>
 #include <Winsock2.h>
@@ -11,4 +12,4 @@ void set_hints(struct addrinfo *hints,
 
 int get_address_info(struct addrinfo *info,
                      struct addrinfo *hints,
-                     const char *port);
+                     const int port);

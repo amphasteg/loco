@@ -1,11 +1,12 @@
-#include <loco.h>
+#include <addrinfo.h>
 #include <hostname.h>
+#include <loco.h>
+#include <loco_socket.h>
 #include <server.h>
+#include <server_options.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <addrinfo.h>
-#include <server_options.h>
 
 struct server
 create_server(struct server_options *options) {
@@ -28,7 +29,9 @@ create_server(struct server_options *options) {
   set_hints(&hints, options->ip_type);
   get_address_info(&address_info, &hints,
                    options->port);
+  server.socket_list = initialize_socket_list();
+  add_listening_sockets(server.socket_list,
+                        &address_info);
 
   return server;
 }
-
