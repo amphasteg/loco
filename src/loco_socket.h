@@ -14,4 +14,6 @@ int add_listening_sockets(struct listening_sock_list *socket_list,
 
 struct listening_sock_list *initialize_socket_list(void);
 
+void listen_on_sockets(struct listening_sock_list *list);
+
 #endif
