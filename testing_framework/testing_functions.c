@@ -1,9 +1,9 @@
-#include "testing_mocks.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <terminal_color.h>
 #include <testing_functions.h>
+#include <testing_mocks.h>
 #include <time.h>
 
 struct test {
@@ -19,10 +19,12 @@ struct test_suite {
   struct test *test_list;
 };
 
-char *string_dupl(const char *original, size_t n) {
-  char *new_string = malloc(n + 1); //+1 for null terminator
+char *string_dupl(const char *original,
+                  size_t n) {
+  char *new_string =
+      malloc(n + 1); //+1 for null terminator
 #ifdef WIN32
-  strncpy_s(new_string, n+1, original, n);
+  strncpy_s(new_string, n + 1, original, n);
 #else
   strncpy(new_string, original, n);
 #endif
@@ -37,7 +39,8 @@ create_test_suite(const char *suite_name,
   struct test_suite *new_test_suite =
       malloc(sizeof(struct test_suite));
   new_test_suite->name_len = name_len;
-  new_test_suite->suite_name = string_dupl(suite_name, name_len);
+  new_test_suite->suite_name =
+      string_dupl(suite_name, name_len);
   new_test_suite->test_list = NULL;
   return new_test_suite;
 }
@@ -78,8 +81,9 @@ void create_test(int (*func)(void),
   strncpy((*new_test)->test_name, name,
           test_name_len);
 #else
-  strncpy_s((*new_test)->test_name, test_name_len * sizeof(char), name,
-          test_name_len);
+  strncpy_s((*new_test)->test_name,
+            test_name_len * sizeof(char), name,
+            test_name_len);
 #endif
   (*new_test)->test_name[name_len] = '\0';
   (*new_test)->name_len = name_len;
@@ -179,7 +183,8 @@ int run_tests(struct test_suite *suite) {
     return 1;
   }
 
-  printf("Running tests suite: %s\n", suite->suite_name);
+  printf("Running tests suite: %s\n",
+         suite->suite_name);
 
   for (struct test *unit_test = suite->test_list;
        unit_test != NULL;

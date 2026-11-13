@@ -47,15 +47,24 @@ struct string *get_hostname() {
   struct string *hostname_str =
       malloc(sizeof(struct string));
   char *hostname = malloc(sizeof(char) * size);
-  char *resized_hostname;
   int hostname_size = 0;
 
-  if (hostname == NULL || hostname_str) {
-    fputs("Failed to allocate memory for "
+  if (hostname == NULL) {
+    fputs("Failed to initialize enough memory for "
           "hostname\n",
           stderr);
+    errno = ENOMEM;
     return NULL;
   }
+
+  if (hostname_str == NULL) {
+    fputs("Failed to allocated enough memory for "
+          "loco string\n",
+          stderr);
+    errno = ENOMEM;
+    return NULL;
+  }
+
 
   while (hostname_size == 0 && hostname != NULL) {
     int error_code = gethostname(hostname, size);
@@ -77,26 +86,19 @@ struct string *get_hostname() {
 
     size += 100;
 
-    resized_hostname =
-        realloc(hostname, sizeof(char) * size);
-    free(hostname);
-
     // This will set hostname to null if fail,
     // this will be caught later if the case
-    hostname = resized_hostname;
+    hostname =
+        realloc(hostname, sizeof(char) * size);
   }
 
-  resized_hostname = realloc(hostname, sizeof(char) *
-                                   hostname_size);
-
-  if (resized_hostname == NULL) {
+  if (hostname == NULL || hostname_size == 0) {
     errno = ENOMEM;
     return NULL;
   }
 
-  free(hostname); 
-
-  hostname = resized_hostname;
+  hostname = realloc(hostname, sizeof(char) *
+                                   hostname_size);
 
   hostname_str->string = hostname;
   hostname_str->string_size = hostname_size;

@@ -8,13 +8,6 @@ add_library(loco
   src/hostname.c)
 
 target_sources(loco
-  PRIVATE
-  FILE_SET private_headers
-    TYPE HEADERS
-    BASE_DIRS
-      src
-    FILES
-      src/loco_internal.h
   PUBLIC
     FILE_SET HEADERS
     BASE_DIRS
@@ -22,6 +15,8 @@ target_sources(loco
     FILES
       include/loco.h
 )
+
+add_subdirectory(./src)
 
 if (WIN32)
   target_link_libraries(loco wsock32 ws2_32)

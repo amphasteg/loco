@@ -1,3 +1,4 @@
+#include <stddef.h>
 #ifdef _WIN32
 #include <Winsock2.h>
 #else
@@ -10,8 +11,17 @@
 #include <testing_mocks.h>
 
 int mock_malloc_errno = 0;
+int mock_realloc_errno = 0;
 char *gethostname_string = NULL;
 int gethostname_errno = 0;
+
+void *mock_realloc(void *p, size_t size) {
+  if (mock_realloc_errno == 0)
+    return realloc(p, size);
+
+  errno = mock_realloc_errno;
+  return NULL;
+}
 
 void *mock_malloc(size_t ptr_size) {
   if (mock_malloc_errno == 0)
@@ -100,4 +110,8 @@ void set_gethostname_mocks(
   set_mock_gethostname_string(mock_hostname,
                               mock_hostname_len);
   set_mock_gethostname_errno(error_num);
+}
+
+void set_realloc_errno(int errnum) {
+  mock_realloc_errno = errnum;
 }

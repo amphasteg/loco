@@ -31,6 +31,12 @@ struct listening_sock_list {
   unsigned int list_size;
 };
 
+/** Increases the size of the list of socket_items
+ * (by increasing the block pointed to at the
+ * first list item).
+ * @returns The new size of the list, or -1 if an
+ * error occured.
+ */
 int increment_list_size(
     struct listening_sock_list *socket_list) {
   if (socket_list == NULL) {

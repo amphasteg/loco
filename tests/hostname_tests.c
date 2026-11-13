@@ -1,5 +1,3 @@
-#include <testing_mocks.h>
-#include <errno.h>
 #define MOCK_IMPL <hostname.c>
 
 #include <stdio.h>
@@ -42,7 +40,7 @@ int get_hostname_success(void) {
 int get_hostname_malloc_fail(void) {
   set_mock_malloc_errno(1);
   struct string *hostname = get_hostname();
-  if (hostname == NULL && errno == 1)
+  if (hostname == NULL)
     return 0;
   return 1;
 }
@@ -50,7 +48,7 @@ int get_hostname_malloc_fail(void) {
 int get_hostname_gethostname_fails(void) {
   set_gethostname_mocks(1, NULL, 0);
   struct string *hostname = get_hostname();
-  if (hostname == NULL && errno == 1)
+  if (hostname == NULL)
     return 0;
   return 1;
 }

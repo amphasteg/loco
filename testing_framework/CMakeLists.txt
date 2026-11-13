@@ -19,15 +19,6 @@ PRIVATE
 
 add_executable(test_runner test_runner.c)
 target_link_libraries(test_runner PRIVATE loco test_lib)
-target_sources(test_runner
-  PRIVATE
-  FILE_SET private_headers
-  TYPE HEADERS
-  BASE_DIRS
-    ../src
-  FILES
-    ../src/loco_internal.h
-)
 
 target_sources(test_runner
   PRIVATE
@@ -36,6 +27,8 @@ target_sources(test_runner
   BASE_DIRS
     ../tests
   FILES
-    ../tests/hostname_test.c
-
+    ../tests/hostname_tests.c
+    ../tests/loco_socket_tests.c
 )
+
+target_include_directories(test_runner PRIVATE ../src)
