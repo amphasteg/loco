@@ -11,7 +11,6 @@
 #undef mock_gethostname
 #undef realloc
 #undef MOCK_IMPL
-#else
 #endif
 
 #endif

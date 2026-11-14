@@ -1,8 +1,9 @@
-#include <tests.h>
-extern void run_hostname_test_suite();
-void run_socket_test_suite();
+#define RUN_SUITE(suite_runner) \
+  void suite_runner(); \
+  suite_runner()
 
 int main(void) {
-  run_hostname_test_suite();
-  run_socket_test_suite();
+  RUN_SUITE(run_hostname_test_suite);
+  RUN_SUITE(run_socket_test_suite);
+  RUN_SUITE(run_addrinfo_test_suite);
 }

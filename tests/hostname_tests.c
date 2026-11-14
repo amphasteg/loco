@@ -1,18 +1,18 @@
-#define MOCK_IMPL <hostname.c>
-
 #include <stdio.h>
 #include <string.h>
+
+#define MOCK_IMPL <hostname.c>
 #include <tests.h>
 
 int verify_hostname_test_success(void) {
   char hostname[6] = "TEST\0";
   int ret = verify_hostname(hostname, 6);
-  if (ret != 0) {
-    printf("Hostname size = %d\n", ret);
-    return 0;
-  }
 
-  return 1;
+  ASSERT_INT_NOT_EQUAL(ret, 0);
+
+  printf("Hostname size = %d\n", ret);
+
+  return 0;
 }
 
 int verify_hostname_test_truncated(void) {
@@ -30,8 +30,8 @@ int get_hostname_success(void) {
   set_gethostname_mocks(0, "hostname",
                         strlen("hostname"));
   struct string *hostname = get_hostname();
-  if (hostname == NULL)
-    return 1;
+
+  ASSERT_PTR_NOT_NULL(hostname);
 
   printf("Got host name: %s\n", hostname->string);
   return 0;
@@ -40,46 +40,28 @@ int get_hostname_success(void) {
 int get_hostname_malloc_fail(void) {
   set_mock_malloc_errno(1);
   struct string *hostname = get_hostname();
-  if (hostname == NULL)
-    return 0;
-  return 1;
+  ASSERT_PTR_NULL(hostname);
+
+  return 0;
 }
 
 int get_hostname_gethostname_fails(void) {
   set_gethostname_mocks(1, NULL, 0);
   struct string *hostname = get_hostname();
-  if (hostname == NULL)
-    return 0;
-  return 1;
+  ASSERT_PTR_NULL(hostname);
+
+  return 0;
 }
 
 void run_hostname_test_suite(void) {
-  struct test_suite *suite = create_test_suite(
-      "hostname tests", strlen("hostname tests"));
+  CREATE_SUITE(Hostname Tests);
 
-  add_test(verify_hostname_test_success,
-           "success", strlen("success"), suite);
+  ADD_TEST(verify_hostname_test_success);
+  ADD_TEST(verify_hostname_test_truncated);
+  ADD_TEST(verify_hostname_test_no_null_terminator);
+  ADD_TEST(get_hostname_success);
+  ADD_TEST(get_hostname_malloc_fail);
+  ADD_TEST(get_hostname_gethostname_fails);
 
-  add_test(verify_hostname_test_truncated,
-           "truncated", strlen("truncated"),
-           suite);
-
-  add_test(
-      verify_hostname_test_no_null_terminator,
-      "no null terminator",
-      strlen("no null terminator"), suite);
-
-  add_test(get_hostname_success,
-           "get hostname success",
-           strlen("get hostname success"), suite);
-
-  add_test(get_hostname_malloc_fail,
-           "malloc fails", strlen("malloc fails"),
-           suite);
-
-  add_test(get_hostname_gethostname_fails,
-           "gethostname fails",
-           strlen("gethostname fails"), suite);
-
-  run_tests(suite);
+  RUN_TESTS();
 }

@@ -9,7 +9,7 @@ target_sources(loco
     server.h
     server_options.h
     loco_string.h
-  )
+)
 
 target_sources(loco
   PRIVATE

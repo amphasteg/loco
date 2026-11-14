@@ -15,20 +15,13 @@ PRIVATE
     test_macros.h
     testing_functions.h
     terminal_color.h
+    testing_mocks.h
 )
+
 
 add_executable(test_runner test_runner.c)
 target_link_libraries(test_runner PRIVATE loco test_lib)
 
-target_sources(test_runner
-  PRIVATE
-  FILE_SET tests
-  TYPE SOURCES
-  BASE_DIRS
-    ../tests
-  FILES
-    ../tests/hostname_tests.c
-    ../tests/loco_socket_tests.c
-)
+add_subdirectory(../tests CMAKE_BINARY_DIR)
 
 target_include_directories(test_runner PRIVATE ../src)

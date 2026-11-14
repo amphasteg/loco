@@ -31,7 +31,7 @@ void *mock_malloc(size_t ptr_size) {
   return NULL;
 }
 
-int mock_gethostname(char *name, int name_len) {
+int mock_gethostname(char *name, size_t name_len) {
   if (gethostname_errno != 0) {
     name = NULL;
 

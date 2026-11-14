@@ -156,9 +156,12 @@ int add_listening_sockets(
 }
 
 struct listening_sock_list *
-intialize_socket_list() {
+initialize_socket_list() {
   struct listening_sock_list *socket_list =
       malloc(sizeof(struct listening_sock_list));
+
+  if (socket_list == NULL)
+    return NULL;
 
   socket_list->socket_item = NULL;
   socket_list->list_size = 0;
