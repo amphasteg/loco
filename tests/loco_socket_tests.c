@@ -1,6 +1,14 @@
-#include <stdlib.h>
 #define MOCK_IMPL <loco_socket.c>
 #include <tests.h>
+
+int init_list_success() {
+  struct listening_sock_list *list =
+      initialize_socket_list();
+
+  ASSERT_PTR_NOT_NULL(list);
+
+  return 0;
+}
 
 int increment_list_success() {
   struct listening_sock_list *list =
@@ -41,6 +49,7 @@ int increment_list_null_list() {
 void run_socket_test_suite(void) {
   CREATE_SUITE(Loco Socket Tests);
 
+  ADD_TEST(init_list_success);
   ADD_TEST(increment_list_success);
   ADD_TEST(increment_list_realloc_fail);
   ADD_TEST(increment_list_null_list);

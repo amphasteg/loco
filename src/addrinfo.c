@@ -25,8 +25,10 @@ int get_address_info(struct addrinfo *info,
   int return_value;
   char service[6];
 
-  if (port == 0 || port > UINT16_MAX)
+  if (port == 0 || port > UINT16_MAX) {
     strncpy(service, SERVICE, 4);
+    service[4] = '\0';
+  }
   else
     snprintf(service, 6, "%d", port);
 
@@ -45,6 +47,11 @@ int get_address_info(struct addrinfo *info,
 
 void set_hints(struct addrinfo *hints,
                enum address_type type) {
+  if (hints == NULL) {
+    fputs("Cannot set null hints.\n", stderr);
+    return;
+  }
+
   switch (type) {
   case IPV4:
     hints->ai_family = AF_INET;

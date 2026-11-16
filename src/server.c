@@ -6,11 +6,10 @@
 #include <server_options.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 struct server
-create_server(struct server_options *options) {
-  struct server server;
+*create_server(struct server_options *options) {
+  struct server *server;
   struct addrinfo *hints, *address_info;
 
 #ifdef _WIN32
@@ -21,16 +20,34 @@ create_server(struct server_options *options) {
   }
 #endif
 
-  memset(&server, 0, sizeof(server));
-  memset(hints, 0, sizeof(struct addrinfo));
+  hints = calloc(1, sizeof(struct addrinfo));
 
-  server.hostname = get_hostname();
+  if (hints == NULL) {
+    fputs("Failed to allocate memory for hints.\n", stderr);
+    return NULL;
+  }
+
+  address_info = calloc(1, sizeof(struct addrinfo));
+
+  if (address_info == NULL) {
+    fputs("Failed to allocate memory for address info.\n", stderr);
+    return NULL;
+  }
+
+  server = calloc(1, sizeof(struct server));
+
+  if (server == NULL) {
+    fputs("Failed to allocate memory for server.\n", stderr);
+    return NULL;
+  }
+
+  server->hostname = get_hostname();
 
   set_hints(hints, options->ip_type);
   get_address_info(address_info, hints,
                    options->port);
-  server.socket_list = initialize_socket_list();
-  add_listening_sockets(server.socket_list,
+  server->socket_list = initialize_socket_list();
+  add_listening_sockets(server->socket_list,
                         address_info);
 
   freeaddrinfo(hints);

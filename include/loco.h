@@ -1,7 +1,7 @@
 struct server;
 struct server_options;
 
-struct server create_server(struct server_options *);
+struct server *create_server(struct server_options *);
 
 void server_listen(struct server *);
 

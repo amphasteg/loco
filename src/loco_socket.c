@@ -27,8 +27,8 @@ struct loco_socket {
 };
 
 struct listening_sock_list {
-  struct loco_socket *socket_item;
   unsigned int list_size;
+  struct loco_socket *socket_item;
 };
 
 /** Increases the size of the list of socket_items
@@ -159,7 +159,7 @@ struct listening_sock_list *
 initialize_socket_list() {
   struct listening_sock_list *socket_list =
       malloc(sizeof(struct listening_sock_list));
-
+  printf("DEBUG: malloc returned %p\n", (void*)socket_list);
   if (socket_list == NULL)
     return NULL;
 

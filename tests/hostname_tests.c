@@ -34,6 +34,7 @@ int get_hostname_success(void) {
   ASSERT_PTR_NOT_NULL(hostname);
 
   printf("Got host name: %s\n", hostname->string);
+  free(hostname);
   return 0;
 }
 
@@ -42,6 +43,7 @@ int get_hostname_malloc_fail(void) {
   struct string *hostname = get_hostname();
   ASSERT_PTR_NULL(hostname);
 
+  free(hostname);
   return 0;
 }
 
@@ -50,6 +52,7 @@ int get_hostname_gethostname_fails(void) {
   struct string *hostname = get_hostname();
   ASSERT_PTR_NULL(hostname);
 
+  free(hostname);
   return 0;
 }
 
