@@ -52,6 +52,8 @@ void set_hints(struct addrinfo *hints,
     return;
   }
 
+  memset(hints, 0, sizeof(struct addrinfo));
+
   switch (type) {
   case IPV4:
     hints->ai_family = AF_INET;
