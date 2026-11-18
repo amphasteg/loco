@@ -19,7 +19,7 @@
 #define SERVICE "8080"
 #endif
 
-int get_address_info(struct addrinfo *info,
+int get_address_info(struct addrinfo **info,
                      struct addrinfo *hints,
                      const int port) {
   int return_value;
@@ -28,14 +28,18 @@ int get_address_info(struct addrinfo *info,
   if (port == 0 || port > UINT16_MAX) {
     strncpy(service, SERVICE, 4);
     service[4] = '\0';
-  }
-  else
+  } else
     snprintf(service, 6, "%d", port);
 
   service[5] = '\0';
 
+  printf("Attemtping to get address information "
+         "using the following: "
+         "\nHOST:%s\nPORT:%s\n\n",
+         HOST, service);
+
   if ((return_value = getaddrinfo(
-           HOST, service, hints, &info)) != 0) {
+           HOST, service, hints, info)) != 0) {
     fprintf(
         stderr,
         "Error getting address information: %s\n",
@@ -52,6 +56,8 @@ void set_hints(struct addrinfo *hints,
     return;
   }
 
+  // This is very important on Windows otherwise
+  // it blows everything up
   memset(hints, 0, sizeof(struct addrinfo));
 
   switch (type) {

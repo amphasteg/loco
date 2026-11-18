@@ -1,5 +1,6 @@
 #include <stddef.h>
 #ifdef _WIN32
+#include <WS2tcpip.h>
 #include <Winsock2.h>
 #else
 #include <unistd.h>
@@ -12,6 +13,7 @@
 
 int mock_malloc_errno = 0;
 int mock_realloc_errno = 0;
+int mock_getaddrinfo_errno = 0;
 char *gethostname_string = NULL;
 int gethostname_errno = 0;
 
@@ -31,7 +33,20 @@ void *mock_malloc(size_t ptr_size) {
   return NULL;
 }
 
-int mock_gethostname(char *name, size_t name_len) {
+int mock_getaddrinfo(char *node, char *service,
+                     struct addrinfo *hints,
+                     struct addrinfo **info) {
+  if (mock_getaddrinfo_errno == 0)
+    return getaddrinfo(node, service, hints,
+                       info);
+
+  *info = NULL;
+
+  return mock_getaddrinfo_errno;
+}
+
+int mock_gethostname(char *name,
+                     size_t name_len) {
   if (gethostname_errno != 0) {
     name = NULL;
 
@@ -114,4 +129,8 @@ void set_gethostname_mocks(
 
 void set_realloc_errno(int errnum) {
   mock_realloc_errno = errnum;
+}
+
+void set_getaddrinfo_errno(int errnum) {
+  mock_getaddrinfo_errno = errnum;
 }

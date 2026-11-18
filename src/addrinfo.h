@@ -10,6 +10,6 @@
 void set_hints(struct addrinfo *hints,
                enum address_type type);
 
-int get_address_info(struct addrinfo *info,
+int get_address_info(struct addrinfo **info,
                      struct addrinfo *hints,
                      const int port);
