@@ -1,5 +1,5 @@
-#include <loco_string.h>
 #include <address_type.h>
+#include <loco_string.h>
 #include <stddef.h>
 
 struct server {

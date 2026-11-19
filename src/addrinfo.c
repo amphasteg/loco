@@ -20,8 +20,7 @@
 #endif
 
 int get_address_info(struct addrinfo **info,
-                     struct addrinfo *hints,
-                     const int port) {
+                     struct addrinfo *hints) {
   int return_value;
   char *node = HOST;
   char *service = SERVICE;

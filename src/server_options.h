@@ -12,8 +12,6 @@ struct ip_address_list {
 /** Options used to configure a server */
 struct server_options {
   enum address_type ip_type;
-  int port;
 };
-
 
 #endif

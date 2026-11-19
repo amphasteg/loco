@@ -15,15 +15,13 @@
   if (n1 == n2)                                                                \
   return 1
 
+#define ASSERT_PTR_NOT_NULL(p1)                                                \
+  if (p1 == NULL)                                                              \
+  return 1
 
-#define ASSERT_PTR_NOT_NULL(p1)                                           \
-  if (p1 == NULL)                                                                \
-    return 1
-
-
-#define ASSERT_PTR_NULL(p1)                                           \
-  if (p1 != NULL)                                                                \
-    return 1
+#define ASSERT_PTR_NULL(p1)                                                    \
+  if (p1 != NULL)                                                              \
+  return 1
 
 #define ADD_TEST(func) add_test(func, #func, strlen(#func), suite)
 
@@ -31,21 +29,4 @@
   struct test_suite *suite = create_test_suite(#name, strlen(#name))
 
 #define RUN_TESTS() run_tests(suite)
-
-#ifdef WIN32
-#define WSA_STARTUP() \
-  WSADATA wsData; \
-  if (WSAStartup(MAKEWORD(2, 2), &wsData) != 0) { \
-    perror("Failed to initialize Winsock\n"); \
-    exit(1); \
-  }
-
-#define WSA_CLEANUP() WSACleanup()
-
-#else
-#define WSA_STARTUP()
-#define WSA_CLEANUP()
-#endif
-
-
 #endif

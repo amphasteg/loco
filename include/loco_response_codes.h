@@ -1,0 +1,12 @@
+#ifndef LOCO_RESPONSE_CODES
+#define LOCO_RESPONSE_CODES
+
+enum loco_response_code {
+  SERVER_CREATE_SUCCESS,
+  SERVER_ALLOC_ERROR,
+  WSA_SUCCESS,
+  WSA_UNAVAILABLE,
+  WSA_ERROR,
+};
+
+#endif

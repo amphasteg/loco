@@ -19,6 +19,7 @@ target_sources(loco
       include
     FILES
       include/loco.h
+      include/loco_response_codes.h
 )
 
 add_subdirectory(./src)

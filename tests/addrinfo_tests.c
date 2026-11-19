@@ -1,3 +1,4 @@
+#include <wsa.h>
 #ifndef WIN32
 #include <arpa/inet.h>
 #endif
@@ -79,13 +80,12 @@ int build_hints(struct addrinfo **hints,
 int get_address_info_success(void) {
 
   struct addrinfo *hints, *address_info;
-  int port = 0;
 
   ASSERT_INT_EQUAL(
       build_hints(&hints, &address_info), 0);
 
-  int result = get_address_info(&address_info,
-                                hints, port);
+  int result =
+      get_address_info(&address_info, hints);
 
   ASSERT_INT_EQUAL(result, 0);
   ASSERT_PTR_NOT_NULL(address_info);
@@ -123,13 +123,12 @@ int get_address_info_success(void) {
 
 int get_address_info_production_success(void) {
   struct addrinfo *hints, *address_info;
-  int port = 0;
 
   ASSERT_INT_EQUAL(
       build_hints(&hints, &address_info), 0);
 
-  int result = get_address_info(&address_info,
-                                hints, port);
+  int result =
+      get_address_info(&address_info, hints);
 
   ASSERT_INT_EQUAL(result, 0);
   ASSERT_PTR_NOT_NULL(address_info);
@@ -167,15 +166,14 @@ int get_address_info_production_success(void) {
 
 int get_address_info_fails() {
   struct addrinfo *hints, *address_info;
-  int port = 0;
   int errnumber = 23;
 
   ASSERT_INT_EQUAL(
       build_hints(&hints, &address_info), 0);
 
   set_getaddrinfo_errno(errnumber);
-  int result = get_address_info(&address_info,
-                                hints, port);
+  int result =
+      get_address_info(&address_info, hints);
 
   ASSERT_INT_NOT_EQUAL(result, 0);
   ASSERT_INT_EQUAL(result, errnumber);
@@ -194,7 +192,7 @@ void run_addrinfo_test_suite(void) {
   ADD_TEST(get_address_info_fails);
   ADD_TEST(get_address_info_production_success);
 
-  WSA_STARTUP();
+  initialize_wsa();
   RUN_TESTS();
-  WSA_CLEANUP();
+  wsa_cleanup();
 }

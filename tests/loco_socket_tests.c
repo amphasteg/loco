@@ -1,7 +1,7 @@
 #define MOCK_IMPL <loco_socket.c>
 #include <tests.h>
 
-int init_list_success() {
+int init_list_success(void) {
   struct listening_sock_list *list =
       initialize_socket_list();
 
@@ -10,7 +10,7 @@ int init_list_success() {
   return 0;
 }
 
-int increment_list_success() {
+int increment_list_success(void) {
   struct listening_sock_list *list =
       initialize_socket_list();
 
@@ -23,7 +23,7 @@ int increment_list_success() {
   return 0;
 }
 
-int increment_list_realloc_fail() {
+int increment_list_realloc_fail(void) {
   struct listening_sock_list *list =
       initialize_socket_list();
 
@@ -36,7 +36,7 @@ int increment_list_realloc_fail() {
   return 0;
 }
 
-int increment_list_null_list() {
+int increment_list_null_list(void) {
   struct listening_sock_list *list = NULL;
 
   int response_value = increment_list_size(list);

@@ -9,6 +9,7 @@ target_sources(loco
     server.h
     server_options.h
     loco_string.h
+    wsa.h
 )
 
 target_sources(loco
@@ -18,4 +19,5 @@ target_sources(loco
     loco_socket.c
     server.c
     server_options.c
+    wsa.c
 )
