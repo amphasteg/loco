@@ -3,6 +3,7 @@
 #include <WS2tcpip.h>
 #include <Winsock2.h>
 #else
+#include <netdb.h>
 #include <unistd.h>
 #endif
 #include <errno.h>

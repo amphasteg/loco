@@ -44,7 +44,7 @@ struct server
   server->hostname = get_hostname();
 
   set_hints(hints, options->ip_type);
-  get_address_info(address_info, hints,
+  get_address_info(&address_info, hints,
                    options->port);
   server->socket_list = initialize_socket_list();
   add_listening_sockets(server->socket_list,

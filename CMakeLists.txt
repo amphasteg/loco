@@ -3,6 +3,11 @@ project(loco)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(BUILD_TESTS "Build test executables" ON)
+option(LOCO_RELEASE "Set release to production" OFF)
+
+if (LOCO_RELEASE)
+  add_compile_definitions(LOCO_RELEASE)
+endif()
 
 add_library(loco
   src/hostname.c)

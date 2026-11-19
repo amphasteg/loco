@@ -23,23 +23,16 @@ int get_address_info(struct addrinfo **info,
                      struct addrinfo *hints,
                      const int port) {
   int return_value;
-  char service[6];
-
-  if (port == 0 || port > UINT16_MAX) {
-    strncpy(service, SERVICE, 4);
-    service[4] = '\0';
-  } else
-    snprintf(service, 6, "%d", port);
-
-  service[5] = '\0';
+  char *node = HOST;
+  char *service = SERVICE;
 
   printf("Attemtping to get address information "
          "using the following: "
          "\nHOST:%s\nPORT:%s\n\n",
-         HOST, service);
+         node, service);
 
   if ((return_value = getaddrinfo(
-           HOST, service, hints, info)) != 0) {
+           node, service, hints, info)) != 0) {
     fprintf(
         stderr,
         "Error getting address information: %s\n",

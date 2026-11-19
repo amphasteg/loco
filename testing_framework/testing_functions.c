@@ -1,3 +1,4 @@
+#include <_stdio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -126,6 +127,9 @@ void add_test(int (*func)(void), const char *name,
 
 void reset_test_env(void) {
   set_mock_malloc_errno(0);
+  set_gethostname_mocks(0, NULL, 0);
+  set_getaddrinfo_errno(0);
+  set_realloc_errno(0);
 }
 
 int run_timed_test(struct test *selected_test) {
