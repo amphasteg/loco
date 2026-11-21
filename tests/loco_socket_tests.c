@@ -1,3 +1,4 @@
+#include <loco_response_codes.h>
 #define MOCK_IMPL <loco_socket.c>
 #include <tests.h>
 
@@ -7,7 +8,7 @@ int init_list_success(void) {
 
   ASSERT_PTR_NOT_NULL(list);
 
-  return 0;
+  END_TEST();
 }
 
 int increment_list_success(void) {
@@ -20,7 +21,7 @@ int increment_list_success(void) {
 
   ASSERT_INT_EQUAL(success_value, 1);
 
-  return 0;
+  END_TEST();
 }
 
 int increment_list_realloc_fail(void) {
@@ -33,7 +34,7 @@ int increment_list_realloc_fail(void) {
 
   ASSERT_INT_EQUAL(response_value, -1);
 
-  return 0;
+  END_TEST();
 }
 
 int increment_list_null_list(void) {
@@ -43,11 +44,11 @@ int increment_list_null_list(void) {
 
   ASSERT_INT_EQUAL(response_value, -1);
 
-  return 0;
+  END_TEST();
 }
 
 void run_socket_test_suite(void) {
-  CREATE_SUITE(Loco Socket Tests);
+  CREATE_SUITE("Loco Socket Tests");
 
   ADD_TEST(init_list_success);
   ADD_TEST(increment_list_success);

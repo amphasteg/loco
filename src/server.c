@@ -1,5 +1,6 @@
-#include "wsa.h"
+#include <_stdio.h>
 #include <addrinfo.h>
+#include <errno.h>
 #include <hostname.h>
 #include <loco.h>
 #include <loco_socket.h>
@@ -7,6 +8,7 @@
 #include <server_options.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <wsa.h>
 
 int failed_allocating(const char *error_msg) {
   if (error_msg != NULL)
@@ -19,14 +21,14 @@ int failed_allocating(const char *error_msg) {
           "object.\n Error code: %d\n",
           errno);
   perror(NULL);
-  return SERVER_ALLOC_ERROR;
+  return ALLOC_ERROR;
 }
 
 int create_server(struct server_options *options,
                   struct server *server) {
   struct addrinfo *hints, *address_info;
 
-  if (initialize_wsa() != WSA_SUCCESS) {
+  if (initialize_wsa() != LOCO_SUCCESS) {
     return WSA_ERROR;
   }
 
@@ -41,10 +43,12 @@ int create_server(struct server_options *options,
   if (address_info == NULL)
     return failed_allocating("address info");
 
-  server = calloc(1, sizeof(struct server));
+  if (server == NULL) {
+    server = calloc(1, sizeof(struct server));
 
-  if (server == NULL)
-    return failed_allocating("server");
+    if (server == NULL)
+      return failed_allocating("server");
+  }
 
   server->hostname = get_hostname();
 
@@ -57,7 +61,7 @@ int create_server(struct server_options *options,
   freeaddrinfo(hints);
   freeaddrinfo(address_info);
 
-  return SERVER_CREATE_SUCCESS;
+  return LOCO_SUCCESS;
 }
 
 void server_listen(struct server *server) {}

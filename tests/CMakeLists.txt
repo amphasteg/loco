@@ -3,4 +3,5 @@ target_sources(test_runner
     hostname_tests.c
     loco_socket_tests.c
     addrinfo_tests.c
+    server_options_tests.c
 )

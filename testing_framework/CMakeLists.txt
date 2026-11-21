@@ -12,7 +12,7 @@ PRIVATE
   FILE_SET private_headers
   TYPE HEADERS
   FILES
-    test_macros.h
+    mock_replacements.h
     testing_functions.h
     terminal_color.h
     testing_mocks.h

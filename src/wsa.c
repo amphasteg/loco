@@ -1,3 +1,4 @@
+#include "loco_response_codes.h"
 #include <wsa.h>
 
 #ifdef WIN32
@@ -43,7 +44,7 @@ enum loco_response_code initialize_wsa() {
     return WSA_UNAVAILABLE;
   }
 
-  return WSA_SUCCESS;
+  return LOCO_SUCCESS;
 }
 
 void wsa_cleanup() { WSACleanup(); }
@@ -53,6 +54,6 @@ void wsa_cleanup() { WSACleanup(); }
 // On non-Windows platforms, these functions do
 // not matter.
 void wsa_cleanup() { return; }
-int initialize_wsa() { return WSA_SUCCESS; }
+enum loco_response_code initialize_wsa() { return LOCO_SUCCESS; }
 
 #endif

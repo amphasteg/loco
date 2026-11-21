@@ -1,6 +1,8 @@
+#include <addrinfo.h>
 #include <address_type.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <loco_response_codes.h>
 
 #ifdef _WIN32
 #include <WS2tcpip.h>
@@ -11,13 +13,6 @@
 #include <string.h>
 #endif
 
-#ifdef LOCO_RELEASE
-#define HOST NULL
-#define SERVICE "80"
-#else
-#define HOST "localhost"
-#define SERVICE "8080"
-#endif
 
 int get_address_info(struct addrinfo **info,
                      struct addrinfo *hints) {
@@ -41,11 +36,11 @@ int get_address_info(struct addrinfo **info,
   return return_value;
 }
 
-void set_hints(struct addrinfo *hints,
+int set_hints(struct addrinfo *hints,
                enum address_type type) {
   if (hints == NULL) {
     fputs("Cannot set null hints.\n", stderr);
-    return;
+    return PROVIDED_NULL;
   }
 
   // This is very important on Windows otherwise
@@ -68,5 +63,5 @@ void set_hints(struct addrinfo *hints,
   hints->ai_flags = AI_PASSIVE;
   hints->ai_protocol = IPPROTO_TCP;
 
-  return;
+  return LOCO_SUCCESS;
 }

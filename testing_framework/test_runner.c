@@ -6,4 +6,5 @@ int main(void) {
   RUN_SUITE(run_hostname_test_suite);
   RUN_SUITE(run_socket_test_suite);
   RUN_SUITE(run_addrinfo_test_suite);
+  RUN_SUITE(run_server_options_suite);
 }

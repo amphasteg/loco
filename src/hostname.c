@@ -1,3 +1,4 @@
+#include <_stdio.h>
 #include <stdio.h>
 #ifdef _WIN32
 #include <Winsock2.h>
@@ -69,14 +70,10 @@ struct string *get_hostname() {
   while (hostname_size == 0 && hostname != NULL) {
     int error_code = gethostname(hostname, size);
     if (error_code != 0) {
-
-#ifdef WIN32
-      error_code = WSAGetLastError();
-#endif
-
       printf("`gethostname` returned error. "
              "Error: %d\n",
              errno);
+      perror(NULL);
 
       return NULL;
     }

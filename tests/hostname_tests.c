@@ -8,22 +8,30 @@ int verify_hostname_test_success(void) {
   char hostname[6] = "TEST\0";
   int ret = verify_hostname(hostname, 6);
 
-  ASSERT_INT_NOT_EQUAL(ret, 0);
+  ASSERT_INT_NOT_ZERO(ret);
 
   printf("Hostname size = %d\n", ret);
 
-  return 0;
+  END_TEST();
 }
 
 int verify_hostname_test_truncated(void) {
   char hostname[5] = "TEST";
-  return verify_hostname(hostname, 5);
+  int response = verify_hostname(hostname, 5);
+
+  ASSERT_INT_ZERO(response);
+
+  END_TEST();
 }
 
 int verify_hostname_test_no_null_terminator(
     void) {
   char hostname[3] = "TES";
-  return verify_hostname(hostname, 3);
+  int res = verify_hostname(hostname, 3);
+
+  ASSERT_INT_ZERO(res);
+
+  END_TEST();
 }
 
 int get_hostname_success(void) {
@@ -35,7 +43,8 @@ int get_hostname_success(void) {
 
   printf("Got host name: %s\n", hostname->string);
   free(hostname);
-  return 0;
+
+  END_TEST();
 }
 
 int get_hostname_malloc_fail(void) {
@@ -44,7 +53,7 @@ int get_hostname_malloc_fail(void) {
   ASSERT_PTR_NULL(hostname);
 
   free(hostname);
-  return 0;
+  END_TEST();
 }
 
 int get_hostname_gethostname_fails(void) {
@@ -53,11 +62,11 @@ int get_hostname_gethostname_fails(void) {
   ASSERT_PTR_NULL(hostname);
 
   free(hostname);
-  return 0;
+  END_TEST();
 }
 
 void run_hostname_test_suite(void) {
-  CREATE_SUITE(Hostname Tests);
+  CREATE_SUITE("Hostname Tests");
 
   ADD_TEST(verify_hostname_test_success);
   ADD_TEST(verify_hostname_test_truncated);

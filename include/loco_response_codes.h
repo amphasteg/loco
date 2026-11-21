@@ -1,12 +1,14 @@
 #ifndef LOCO_RESPONSE_CODES
 #define LOCO_RESPONSE_CODES
 
-enum loco_response_code {
-  SERVER_CREATE_SUCCESS,
-  SERVER_ALLOC_ERROR,
-  WSA_SUCCESS,
+enum loco_response_code { 
+  LOCO_SUCCESS = 0,
+  ALLOC_ERROR,
   WSA_UNAVAILABLE,
   WSA_ERROR,
+  PROVIDED_NULL,
+  ENUM_OUT_OF_RANGE,
+  LOCO_FAIL = -1,
 };
 
 #endif
